@@ -45,33 +45,11 @@ var transactionChan chan types.Transaction
 var closeFn func()
 
 func init() {
-	// A list of default config paths to check for if not explicitly defined
-	defaultPaths := []string{
-		"/benthos.yaml",
-		"/etc/benthos/config.yaml",
-		"/etc/benthos.yaml",
-	}
-
 	conf := config.New()
 
-	if confStr := os.Getenv("BENTHOS_CONFIG"); len(confStr) > 0 {
-		if err := yaml.Unmarshal([]byte(confStr), &conf); err != nil {
-			fmt.Fprintf(os.Stderr, "Configuration file read error: %v\n", err)
-			os.Exit(1)
-		}
-	} else {
-		// Iterate default config paths
-		for _, path := range defaultPaths {
-			if _, err := os.Stat(path); err == nil {
-				fmt.Fprintf(os.Stderr, "Config file not specified, reading from %v\n", path)
-
-				if _, err = config.Read(path, true, &conf); err != nil {
-					fmt.Fprintf(os.Stderr, "Configuration file read error: %v\n", err)
-					os.Exit(1)
-				}
-				break
-			}
-		}
+	if err := yaml.Unmarshal([]byte(os.Getenv("BENTHOS_CONFIG")), &conf); err != nil {
+		fmt.Fprintf(os.Stderr, "Configuration file read error: %v\n", err)
+		os.Exit(1)
 	}
 
 	// Logging and stats aggregation.
