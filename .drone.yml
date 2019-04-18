@@ -1,0 +1,27 @@
+kind: pipeline
+name: default
+
+steps:
+- name: fetch
+  image: docker:git
+  commands:
+  - git fetch --tags
+  - git fetch origin gh-pages
+
+- name: test
+  image: golang:1.12
+  environment:
+    GOPATH: /drone
+    GO111MODULE: on
+  commands:
+    - go test ./...
+
+- name: release
+  image: golang:1.12
+  environment:
+    GITHUB_TOKEN:
+      from_secret: github_token
+  commands:
+    - curl -sL https://git.io/goreleaser | bash
+  when:
+    event: tag

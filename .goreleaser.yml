@@ -1,0 +1,17 @@
+builds:
+  - main: main.go
+    binary: benthos-lambda
+    goos:
+      - linux
+    goarch:
+      - amd64
+    ldflags: >
+      -X main.Version={{.Version}}
+      -X main.DateBuilt={{.Date}}
+archive:
+  format: zip
+release:
+  github:
+    owner: Jeffail
+    name: benthos
+  disable: true
