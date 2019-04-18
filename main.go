@@ -21,7 +21,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"runtime/pprof"
@@ -36,15 +35,16 @@ import (
 	"github.com/Jeffail/benthos/lib/tracer"
 	"github.com/Jeffail/benthos/lib/types"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/benthosdev/benthos-lambda/lib"
 	"gopkg.in/yaml.v2"
 )
 
 //------------------------------------------------------------------------------
 
-var transactionChan chan types.Transaction
-var closeFn func()
+func main() {
+	var transactionChan chan types.Transaction
+	var closeFn func()
 
-func init() {
 	conf := config.New()
 
 	if err := yaml.Unmarshal([]byte(os.Getenv("BENTHOS_CONFIG")), &conf); err != nil {
@@ -128,15 +128,10 @@ func init() {
 			logger.Errorf("Failed to cleanly close metrics aggregator: %v\n", sCloseErr)
 		}
 	}
-}
-
-func HandleFilterRequest(ctx context.Context, obj interface{}) (interface{}, error) {
-	// TODO
-	return nil, nil
-}
-
-func main() {
-	lambda.Start(HandleFilterRequest)
+	handler := &lib.Handler{
+		Transactions: transactionChan,
+	}
+	lambda.Start(handler.Handle)
 	closeFn()
 }
 
