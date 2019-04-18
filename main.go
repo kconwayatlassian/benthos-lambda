@@ -91,6 +91,7 @@ func main() {
 			conf.Output, manager,
 			logger.NewModule(".output"), metrics.Namespaced(stats, "output"),
 		)
+		outputLayer = &lib.InterceptingOutput{Output: outputLayer}
 	}
 	if err == nil {
 		err = pipelineLayer.Consume(transactionChan)

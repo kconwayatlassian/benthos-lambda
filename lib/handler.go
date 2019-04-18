@@ -23,6 +23,11 @@ func (h *Handler) Handle(ctx context.Context, b json.RawMessage) (json.RawMessag
 	case <-ctx.Done():
 		return nil, ctx.Err()
 	case resp := <-respCh:
-		return nil, resp.Error()
+		var fullResp *InterceptingResponse
+		var ok bool
+		if fullResp, ok = resp.(*InterceptingResponse); !ok {
+			return nil, resp.Error()
+		}
+		return fullResp.Value.Get(0).Get(), fullResp.Error()
 	}
 }
