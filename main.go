@@ -159,6 +159,7 @@ func HandleFilterRequest(ctx context.Context, obj interface{}) (interface{}, err
 
 func main() {
 	lambda.Start(HandleFilterRequest)
+	closeFn()
 }
 
 //------------------------------------------------------------------------------
