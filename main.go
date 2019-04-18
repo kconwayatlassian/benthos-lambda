@@ -36,6 +36,7 @@ import (
 	"github.com/Jeffail/benthos/lib/tracer"
 	"github.com/Jeffail/benthos/lib/types"
 	"github.com/aws/aws-lambda-go/lambda"
+	"gopkg.in/yaml.v2"
 )
 
 //------------------------------------------------------------------------------
@@ -53,16 +54,23 @@ func init() {
 
 	conf := config.New()
 
-	// Iterate default config paths
-	for _, path := range defaultPaths {
-		if _, err := os.Stat(path); err == nil {
-			fmt.Fprintf(os.Stderr, "Config file not specified, reading from %v\n", path)
+	if confStr := os.Getenv("BENTHOS_CONFIG"); len(confStr) > 0 {
+		if err := yaml.Unmarshal([]byte(confStr), &conf); err != nil {
+			fmt.Fprintf(os.Stderr, "Configuration file read error: %v\n", err)
+			os.Exit(1)
+		}
+	} else {
+		// Iterate default config paths
+		for _, path := range defaultPaths {
+			if _, err := os.Stat(path); err == nil {
+				fmt.Fprintf(os.Stderr, "Config file not specified, reading from %v\n", path)
 
-			if _, err = config.Read(path, true, &conf); err != nil {
-				fmt.Fprintf(os.Stderr, "Configuration file read error: %v\n", err)
-				os.Exit(1)
+				if _, err = config.Read(path, true, &conf); err != nil {
+					fmt.Fprintf(os.Stderr, "Configuration file read error: %v\n", err)
+					os.Exit(1)
+				}
+				break
 			}
-			break
 		}
 	}
 
