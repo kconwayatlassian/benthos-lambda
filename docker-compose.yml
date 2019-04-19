@@ -1,0 +1,14 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - SERVERFULL_RUNTIME_HTTPSERVER_ADDRESS=:8081
+      - SERVERFULL_RUNTIME_LOGGER_OUTPUT=NULL
+      - SERVERFULL_RUNTIME_STATS_OUTPUT=NULL
+      - SERVERFULL_RUNTIME_SIGNALS_INSTALLED=OS
+      - SERVERFULL_RUNTIME_SIGNALS_OS_SIGNALS=15 2
+    ports:
+      - 8081:8081
